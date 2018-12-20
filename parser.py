@@ -29,8 +29,22 @@ for cur, nx in zip(intent_val, intent_val[1:]):
 
     assign = re.search('\s*(.+)\s*=\s*(.+)', cur[1])
 
-    comment = re.search('\s*#(.*)\s*', cur[1])
+    comment = re.search('$\s*#(.*)\s*', cur[1])
     msg = re.search('\s*print\((.*)\)', cur[1])
+
+    is_st = re.search('.+(is).+', cur[1])
+    function_dec = re.search('\s*def\s+(.+):', cur[1])
+
+    get_by_id = re.search('doc\[[\'\"]#(\w+)', cur[1])
+
+    if get_by_id is not None:
+        get_by_id = get_by_id.groups()
+        # cur = (cur[0], cur[1].replace(f'doc[{get_by_id[0]}]', f'document.getElementById({get_by_id[0]})'))
+        cur = (cur[0], re.sub(r'(doc\[[\'\"]#\w+\'?\"?\])',  f'document.getElementById("{get_by_id[0]}")', cur[1]))
+
+    if is_st is not None:
+        is_st = is_st.groups()
+        cur = (cur[0], cur[1].replace('is', '==='))
 
     if loop is not None:
         loop = loop.groups()
@@ -51,6 +65,10 @@ for cur, nx in zip(intent_val, intent_val[1:]):
     elif msg is not None:
         msg = msg.groups()
         print(f'console.log({msg[0]});')
+
+    elif function_dec is not None:
+        function_dec = function_dec.groups()
+        print(f'function {function_dec[0]}')
 
     else:
         print(cur[0] * ' ' + cur[1])
