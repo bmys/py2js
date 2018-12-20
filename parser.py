@@ -54,8 +54,9 @@ for cur, nx in zip(intent_val, intent_val[1:]):
         local_vars[loop[0]] = f'{loop[1]}[{loop[0]}]'
         in_loop = True
 
-    elif assign is not None:
+    elif assign is not None and not assign[0].find('.'):
         assign = assign.groups()
+
         print(f'var {assign[0]} = {assign[1]};')
 
     elif comment is not None:
